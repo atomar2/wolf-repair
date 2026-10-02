@@ -2,8 +2,6 @@ package edu.ncsu.csc216.wolf_repair.model.command;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.Test;
-
 /**
  * Tests command construction, validation, and access to command information.
  * @author Aanya Tomar
