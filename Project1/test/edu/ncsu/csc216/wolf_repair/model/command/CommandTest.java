@@ -1,5 +1,5 @@
 package edu.ncsu.csc216.wolf_repair.model.command;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
@@ -16,5 +16,29 @@ public class CommandTest {
     @Test
     public void testCommandValues() {
         assertEquals(9, Command.CommandValue.values().length);
+    }
+    
+    /** Tests constructing commands with valid actions and information. */
+    @Test
+    public void testCommand() {
+        // TODO Implement assertions.
+    }
+
+    /** Tests rejecting null actions and invalid STATUS or CANCEL information. */
+    @Test
+    public void testInvalidCommand() {
+        // TODO Implement assertions.
+    }
+
+    /** Tests retrieving the action represented by a command. */
+    @Test
+    public void testGetCommand() {
+        // TODO Implement assertions.
+    }
+
+    /** Tests retrieving the information associated with a command. */
+    @Test
+    public void testGetCommandInformation() {
+        // TODO Implement assertions.
     }
 }
