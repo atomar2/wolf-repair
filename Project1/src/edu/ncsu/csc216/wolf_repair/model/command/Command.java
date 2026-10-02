@@ -7,10 +7,29 @@ package edu.ncsu.csc216.wolf_repair.model.command;
  */
 public class Command {
 
-	/**
-	 * Actions that can be applied to a work order.
-	 */
-	public enum CommandValue { SUBMIT, APPROVE, DENY, DISPATCH, STATUS, REASSIGN, CANCEL, COMPLETE, REOPEN }
+    /**
+     * Actions that can be applied to a work order.
+     */
+    public enum CommandValue {
+        /** Submits a request for review. */
+        SUBMIT,
+        /** Approves a request for technician assignment. */
+        APPROVE,
+        /** Denies a request with a rejection note. */
+        DENY,
+        /** Dispatches a technician or records a rejection reason. */
+        DISPATCH,
+        /** Records a status update on work in progress. */
+        STATUS,
+        /** Returns a job to Assigned for technician reassignment. */
+        REASSIGN,
+        /** Cancels a job with a permitted rejection reason. */
+        CANCEL,
+        /** Marks a job completed with a completion note. */
+        COMPLETE,
+        /** Reopens a rejected or completed work order. */
+        REOPEN
+    }
 	
 	/** Action represented by this command. */
 	private CommandValue command;
