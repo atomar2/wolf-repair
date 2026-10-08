@@ -1,9 +1,11 @@
 package edu.ncsu.csc216.wolf_repair.model.manager;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import edu.ncsu.csc216.wolf_repair.model.command.Command;
 import edu.ncsu.csc216.wolf_repair.model.workorder.WorkOrder;
+
 
 /**
  * Represents a repair site with a name, category, budget, and work orders.
@@ -30,7 +32,10 @@ public class RepairSite {
      *         empty, or the budget is negative
      */
     public RepairSite(String siteName, String siteCategory, int budget) {
-        // TODO Validate site information and initialize the work order list.
+        setSiteName(siteName);
+        setSiteCategory(siteCategory);
+        setBudget(budget);
+        workOrders = new ArrayList<WorkOrder>();
     }
 
     /**
@@ -38,7 +43,13 @@ public class RepairSite {
      * currently in this site's list, or 1 if the list is empty.
      */
     public void setWorkOrderId() {
-        // TODO Determine the next available work order id.
+        int maximumId = 0;
+        for (WorkOrder order : workOrders) {
+            if (order.getWorkOrderId() > maximumId) {
+                maximumId = order.getWorkOrderId();
+            }
+        }
+        WorkOrder.setCounter(maximumId + 1);
     }
 
     /**
@@ -47,7 +58,10 @@ public class RepairSite {
      * @throws IllegalArgumentException if the name is null or empty
      */
     private void setSiteName(String siteName) {
-        // TODO Validate and set the site name.
+        if (siteName == null || siteName.isEmpty()) {
+            throw new IllegalArgumentException("RepairSite cannot be created.");
+        }
+        this.siteName = siteName;
     }
 
     /**
@@ -55,7 +69,7 @@ public class RepairSite {
      * @return name of the site
      */
     public String getSiteName() {
-        return null;
+        return siteName;
     }
 
     /**
@@ -64,7 +78,10 @@ public class RepairSite {
      * @throws IllegalArgumentException if the category is null or empty
      */
     private void setSiteCategory(String siteCategory) {
-        // TODO Validate and set the site category.
+        if (siteCategory == null || siteCategory.isEmpty()) {
+            throw new IllegalArgumentException("RepairSite cannot be created.");
+        }
+        this.siteCategory = siteCategory;
     }
 
     /**
@@ -72,7 +89,7 @@ public class RepairSite {
      * @return category of the site
      */
     public String getSiteCategory() {
-        return null;
+        return siteCategory;
     }
 
     /**
@@ -81,7 +98,10 @@ public class RepairSite {
      * @throws IllegalArgumentException if the budget is negative
      */
     private void setBudget(int budget) {
-        // TODO Validate and set the budget.
+        if (budget < 0) {
+            throw new IllegalArgumentException("RepairSite cannot be created.");
+        }
+        this.budget = budget;
     }
 
     /**
@@ -89,7 +109,7 @@ public class RepairSite {
      * @return budget of the site
      */
     public int getBudget() {
-        return 0;
+        return budget;
     }
 
     /**
@@ -101,8 +121,8 @@ public class RepairSite {
      *         or its id duplicates an existing work order
      */
     public int addWorkOrder(String requester, String description) {
-        // TODO Create and add a new work order.
-        return 0;
+        WorkOrder order = new WorkOrder(requester, description);
+        return addWorkOrder(order);
     }
 
     /**
@@ -110,12 +130,29 @@ public class RepairSite {
      * A duplicate id leaves the existing list unchanged.
      * @param workOrder work order to add
      * @return id of the added work order
-     * @throws IllegalArgumentException if the id duplicates an existing
-     *         work order
+     *  @throws IllegalArgumentException if workOrder is null or its id
+     *          duplicates an existing work order
      */
     public int addWorkOrder(WorkOrder workOrder) {
-        // TODO Insert the work order in sorted order.
-        return 0;
+        if (workOrder == null) {
+            throw new IllegalArgumentException("WorkOrder cannot be created.");
+        }
+
+        int id = workOrder.getWorkOrderId();
+        int position = 0;
+
+        while (position < workOrders.size()
+                && workOrders.get(position).getWorkOrderId() < id) {
+            position++;
+        }
+
+        if (position < workOrders.size()
+                && workOrders.get(position).getWorkOrderId() == id) {
+            throw new IllegalArgumentException("WorkOrder cannot be created.");
+        }
+
+        workOrders.add(position, workOrder);
+        return id;
     }
 
     /**
@@ -123,7 +160,7 @@ public class RepairSite {
      * @return list of work orders
      */
     public List<WorkOrder> getWorkOrders() {
-        return null;
+        return workOrders;
     }
 
     /**
@@ -132,6 +169,11 @@ public class RepairSite {
      * @return matching work order, or null if no match exists
      */
     public WorkOrder getWorkOrderById(int id) {
+        for (WorkOrder order : workOrders) {
+            if (order.getWorkOrderId() == id) {
+                return order;
+            }
+        }
         return null;
     }
 
@@ -145,7 +187,10 @@ public class RepairSite {
      * @throws IllegalArgumentException if required command information is invalid
      */
     public void executeCommand(int id, Command c) {
-        // TODO Find the work order and apply the command.
+        WorkOrder order = getWorkOrderById(id);
+        if (order != null) {
+            order.update(c);
+        }
     }
 
     /**
@@ -154,7 +199,12 @@ public class RepairSite {
      * @param id identifier of the work order to remove
      */
     public void deleteWorkOrderById(int id) {
-        // TODO Find and remove the work order.
+        for (int index = 0; index < workOrders.size(); index++) {
+            if (workOrders.get(index).getWorkOrderId() == id) {
+                workOrders.remove(index);
+                return;
+            }
+        }
     }
 
     /**
@@ -164,6 +214,6 @@ public class RepairSite {
      */
     @Override
     public String toString() {
-        return null;
+        return "# " + siteName + "," + siteCategory + "," + budget;
     }
 }
