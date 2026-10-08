@@ -1,4 +1,5 @@
 package edu.ncsu.csc216.wolf_repair.model.command;
+import edu.ncsu.csc216.wolf_repair.model.workorder.WorkOrder;
 
 /**
  * Represents a user action and its associated information for updating
@@ -45,22 +46,38 @@ public class Command {
 	 *         is null or empty, or CANCEL information is not a permitted reason
 	 */
 	public Command(CommandValue command, String commandInformation) {
-	    // TODO Implement validation and initialize the fields.
+        if (command == null) {
+            throw new IllegalArgumentException("Invalid information.");
+        }
+
+        if (command == CommandValue.STATUS
+                && (commandInformation == null || commandInformation.isEmpty())) {
+            throw new IllegalArgumentException("Invalid information.");
+        }
+
+        if (command == CommandValue.CANCEL
+                && !WorkOrder.WAITING.equals(commandInformation)
+                && !WorkOrder.CANCELLED.equals(commandInformation)) {
+            throw new IllegalArgumentException("Invalid information.");
+        }
+
+        this.command = command;
+        this.commandInformation = commandInformation;
 	}
 
 	/**
 	 * Returns the action represented by this command.
 	 * @return the command action
 	 */
-	public CommandValue getCommand() {
-	    return null;
-	}
+    public CommandValue getCommand() {
+        return command;
+    }
 
 	/**
 	 * Returns the information associated with this command.
 	 * @return the command information
 	 */
-	public String getCommandInformation() {
-	    return null;
-	}
+    public String getCommandInformation() {
+        return commandInformation;
+    }
 }
