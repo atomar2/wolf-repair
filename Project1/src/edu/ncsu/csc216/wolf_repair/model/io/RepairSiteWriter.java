@@ -1,8 +1,14 @@
 package edu.ncsu.csc216.wolf_repair.model.io;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import edu.ncsu.csc216.wolf_repair.model.manager.RepairSite;
+import edu.ncsu.csc216.wolf_repair.model.workorder.WorkOrder;
 
 /**
  * Writes repair sites and their work orders to a text file that can be
@@ -21,6 +27,25 @@ public class RepairSiteWriter {
      */
     public static void writeRepairSitesToFile(String fileName,
             List<RepairSite> sites) {
-        // TODO Write site headers and their work order records.
+        if (fileName == null || sites == null) {
+            throw new IllegalArgumentException("Unable to save file.");
+        }
+
+        try (BufferedWriter writer = Files.newBufferedWriter(
+                Paths.get(fileName), StandardCharsets.UTF_8)) {
+            for (RepairSite site : sites) {
+                if (!site.getWorkOrders().isEmpty()) {
+                    writer.write(site.toString());
+                    writer.newLine();
+
+                    for (WorkOrder order : site.getWorkOrders()) {
+                        writer.write(order.toString());
+                        writer.newLine();
+                    }
+                }
+            }
+        } catch (IOException | RuntimeException exception) {
+            throw new IllegalArgumentException("Unable to save file.", exception);
+        }
     }
 }
