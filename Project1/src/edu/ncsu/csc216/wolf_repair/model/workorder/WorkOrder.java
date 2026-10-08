@@ -1,7 +1,7 @@
 package edu.ncsu.csc216.wolf_repair.model.workorder;
 
 import edu.ncsu.csc216.wolf_repair.model.command.Command;
-
+import edu.ncsu.csc216.wolf_repair.model.command.Command.CommandValue;
 /**
  * Represents a repair request and manages its lifecycle using the State Pattern.
  * Stores the request information, assigned technician, note, and current state.
@@ -66,7 +66,7 @@ public class WorkOrder {
      *         or empty
      */
     public WorkOrder(String requester, String description) {
-        // TODO Validate and initialize a new work order.
+        this(counter, SUBMITTED_NAME, requester, description, null, null);
     }
 
     /**
@@ -84,7 +84,16 @@ public class WorkOrder {
      */
     public WorkOrder(int id, String state, String requester,
             String description, String technician, String note) {
-        // TODO Validate stored information and initialize the work order.
+        setId(id);
+        setState(state);
+        setRequester(requester);
+        setDescription(description);
+        setTechnician(technician);
+        setNote(note);
+
+        if (id >= counter) {
+            counter = id + 1;
+        }
     }
 
     /**
@@ -93,7 +102,10 @@ public class WorkOrder {
      * @throws IllegalArgumentException if id is not positive
      */
     private void setId(int id) {
-        // TODO Validate and set the identifier.
+        if (id <= 0) {
+            throw new IllegalArgumentException("WorkOrder cannot be created.");
+        }
+        workOrderId = id;
     }
 
     /**
@@ -101,7 +113,7 @@ public class WorkOrder {
      * @return the work order id
      */
     public int getWorkOrderId() {
-        return 0;
+        return workOrderId;
     }
 
     /**
@@ -110,7 +122,21 @@ public class WorkOrder {
      * @throws IllegalArgumentException if the state name is unrecognized
      */
     private void setState(String stateValue) {
-        // TODO Select the corresponding state instance.
+        if (SUBMITTED_NAME.equals(stateValue)) {
+            currentState = submittedState;
+        } else if (REVIEW_NAME.equals(stateValue)) {
+            currentState = reviewState;
+        } else if (ASSIGNED_NAME.equals(stateValue)) {
+            currentState = assignedState;
+        } else if (WORK_NAME.equals(stateValue)) {
+            currentState = workState;
+        } else if (REJECTED_NAME.equals(stateValue)) {
+            currentState = rejectedState;
+        } else if (COMPLETED_NAME.equals(stateValue)) {
+            currentState = completedState;
+        } else {
+            throw new IllegalArgumentException("WorkOrder cannot be created.");
+        }
     }
 
     /**
@@ -118,7 +144,7 @@ public class WorkOrder {
      * @return the state name
      */
     public String getState() {
-        return null;
+        return currentState.getStateName();
     }
 
     /**
@@ -127,7 +153,10 @@ public class WorkOrder {
      * @throws IllegalArgumentException if requester is null or empty
      */
     private void setRequester(String requester) {
-        // TODO Validate and set the requester.
+        if (requester == null || requester.isEmpty()) {
+            throw new IllegalArgumentException("WorkOrder cannot be created.");
+        }
+        this.requester = requester;
     }
 
     /**
@@ -135,7 +164,7 @@ public class WorkOrder {
      * @return the person who filed the request
      */
     public String getRequester() {
-        return null;
+        return requester;
     }
 
     /**
@@ -144,7 +173,10 @@ public class WorkOrder {
      * @throws IllegalArgumentException if description is null or empty
      */
     private void setDescription(String description) {
-        // TODO Validate and set the description.
+        if (description == null || description.isEmpty()) {
+            throw new IllegalArgumentException("WorkOrder cannot be created.");
+        }
+        this.description = description;
     }
 
     /**
@@ -152,7 +184,7 @@ public class WorkOrder {
      * @return the problem description
      */
     public String getDescription() {
-        return null;
+        return description;
     }
 
     /**
@@ -162,7 +194,13 @@ public class WorkOrder {
      *         match the current state
      */
     private void setTechnician(String technician) {
-        // TODO Validate and set the technician.
+        boolean present = technician != null && !technician.isEmpty();
+        boolean required = currentState == workState || currentState == completedState;
+
+        if (present != required) {
+            throw new IllegalArgumentException("WorkOrder cannot be created.");
+        }
+        this.technician = technician;
     }
 
     /**
@@ -170,7 +208,7 @@ public class WorkOrder {
      * @return technician identifier, or an empty string if none is recorded
      */
     public String getTechnician() {
-        return null;
+    	return technician == null ? "" : technician;
     }
 
     /**
@@ -180,7 +218,15 @@ public class WorkOrder {
      *         note is null or empty
      */
     private void setNote(String note) {
-        // TODO Validate and set the note.
+        if (note == null || note.isEmpty()) {
+            if (currentState == rejectedState) {
+                throw new IllegalArgumentException("A rejection note is required.");
+            }
+            if (currentState == completedState) {
+                throw new IllegalArgumentException("A completion note is required.");
+            }
+        }
+        this.note = note;
     }
 
     /**
@@ -188,7 +234,7 @@ public class WorkOrder {
      * @return the note, or an empty string if none is recorded
      */
     public String getNote() {
-        return null;
+        return note == null ? "" : note;
     }
 
     /**
@@ -196,7 +242,7 @@ public class WorkOrder {
      * @param newCount next identifier to assign
      */
     public static void setCounter(int newCount) {
-        // TODO Set the shared counter.
+        counter = newCount;
     }
 
     /**
@@ -206,7 +252,8 @@ public class WorkOrder {
      */
     @Override
     public String toString() {
-        return null;
+        return "* " + workOrderId + "," + getState() + "," + requester
+                + "," + description + "," + getTechnician() + "," + getNote();
     }
 
     /**
@@ -218,7 +265,10 @@ public class WorkOrder {
      *         that is null or empty
      */
     public void update(Command c) {
-        // TODO Delegate the command to the current state.
+        if (c == null) {
+            throw new UnsupportedOperationException("Invalid command.");
+        }
+        currentState.updateState(c);
     }
 
     /**
@@ -260,19 +310,22 @@ public class WorkOrder {
          * @param command action to apply
          * @throws UnsupportedOperationException if the action is not SUBMIT
          */
-        @Override
-        public void updateState(Command command) {
-            // TODO Implement the Submitted transition.
-        }
+    	@Override
+    	public void updateState(Command command) {
+    	    if (command.getCommand() != CommandValue.SUBMIT) {
+    	        throw new UnsupportedOperationException("Invalid command.");
+    	    }
+    	    currentState = reviewState;
+    	}
 
         /**
          * Returns the Submitted state name.
          * @return the state name
          */
-        @Override
-        public String getStateName() {
-            return null;
-        }
+    	@Override
+    	public String getStateName() {
+    	    return SUBMITTED_NAME;
+    	}
     }
 
     /**
@@ -286,19 +339,32 @@ public class WorkOrder {
          * @throws UnsupportedOperationException if the action is not supported
          * @throws IllegalArgumentException if DENY has no required note
          */
-        @Override
-        public void updateState(Command command) {
-            // TODO Implement review transitions.
-        }
+    	@Override
+    	public void updateState(Command command) {
+    	    if (command.getCommand() == CommandValue.APPROVE) {
+    	        note = command.getCommandInformation();
+    	        currentState = assignedState;
+    	    } else if (command.getCommand() == CommandValue.DENY) {
+    	        String information = command.getCommandInformation();
+    	        if (information == null || information.isEmpty()) {
+    	            throw new IllegalArgumentException("A rejection note is required.");
+    	        }
+    	        note = information;
+    	        technician = null;
+    	        currentState = rejectedState;
+    	    } else {
+    	        throw new UnsupportedOperationException("Invalid command.");
+    	    }
+    	}
 
         /**
          * Returns the UnderReview state name.
          * @return the state name
          */
-        @Override
-        public String getStateName() {
-            return null;
-        }
+    	@Override
+    	public String getStateName() {
+    	    return REVIEW_NAME;
+    	}
     }
 
     /**
@@ -311,19 +377,33 @@ public class WorkOrder {
          * @param command action to apply
          * @throws UnsupportedOperationException if the action is not supported
          */
-        @Override
-        public void updateState(Command command) {
-            // TODO Implement dispatch transitions.
-        }
+    	@Override
+    	public void updateState(Command command) {
+    	    if (command.getCommand() != CommandValue.DISPATCH) {
+    	        throw new UnsupportedOperationException("Invalid command.");
+    	    }
+
+    	    String information = command.getCommandInformation();
+    	    if (information == null || information.isEmpty()
+    	            || WAITING.equals(information) || CANCELLED.equals(information)) {
+    	        note = CANCELLED.equals(information) ? CANCELLED : WAITING;
+    	        technician = null;
+    	        currentState = rejectedState;
+    	    } else {
+    	        technician = information;
+    	        note = null;
+    	        currentState = workState;
+    	    }
+    	}
 
         /**
          * Returns the Assigned state name.
          * @return the state name
          */
-        @Override
-        public String getStateName() {
-            return null;
-        }
+    	@Override
+    	public String getStateName() {
+    	    return ASSIGNED_NAME;
+    	}
     }
 
     /**
@@ -337,19 +417,37 @@ public class WorkOrder {
          * @throws UnsupportedOperationException if the action is not supported
          * @throws IllegalArgumentException if a required note is missing
          */
-        @Override
-        public void updateState(Command command) {
-            // TODO Implement InProgress transitions.
-        }
+    	@Override
+    	public void updateState(Command command) {
+    	    if (command.getCommand() == CommandValue.REASSIGN) {
+    	        technician = null;
+    	        currentState = assignedState;
+    	    } else if (command.getCommand() == CommandValue.STATUS) {
+    	        note = command.getCommandInformation();
+    	    } else if (command.getCommand() == CommandValue.CANCEL) {
+    	        note = command.getCommandInformation();
+    	        technician = null;
+    	        currentState = rejectedState;
+    	    } else if (command.getCommand() == CommandValue.COMPLETE) {
+    	        String information = command.getCommandInformation();
+    	        if (information == null || information.isEmpty()) {
+    	            throw new IllegalArgumentException("A completion note is required.");
+    	        }
+    	        note = information;
+    	        currentState = completedState;
+    	    } else {
+    	        throw new UnsupportedOperationException("Invalid command.");
+    	    }
+    	}
 
         /**
          * Returns the InProgress state name.
          * @return the state name
          */
-        @Override
-        public String getStateName() {
-            return null;
-        }
+    	@Override
+    	public String getStateName() {
+    	    return WORK_NAME;
+    	}
     }
 
     /**
@@ -364,19 +462,36 @@ public class WorkOrder {
          * @throws UnsupportedOperationException if the action or dispatch
          *         information is not valid for the rejection reason
          */
-        @Override
-        public void updateState(Command command) {
-            // TODO Implement rejection recovery transitions.
-        }
+    	@Override
+    	public void updateState(Command command) {
+    	    String information = command.getCommandInformation();
+
+    	    if (WAITING.equals(note)) {
+    	        if (command.getCommand() != CommandValue.DISPATCH
+    	                || information == null || information.isEmpty()
+    	                || WAITING.equals(information) || CANCELLED.equals(information)) {
+    	            throw new UnsupportedOperationException("Invalid command.");
+    	        }
+    	        technician = information;
+    	        note = null;
+    	        currentState = workState;
+    	    } else {
+    	        if (command.getCommand() != CommandValue.REOPEN) {
+    	            throw new UnsupportedOperationException("Invalid command.");
+    	        }
+    	        note = information;
+    	        currentState = reviewState;
+    	    }
+    	}
 
         /**
          * Returns the Rejected state name.
          * @return the state name
          */
-        @Override
-        public String getStateName() {
-            return null;
-        }
+    	@Override
+    	public String getStateName() {
+    	    return REJECTED_NAME;
+    	}
     }
 
     /**
@@ -389,18 +504,22 @@ public class WorkOrder {
          * @param command action to apply
          * @throws UnsupportedOperationException if the action is not REOPEN
          */
-        @Override
-        public void updateState(Command command) {
-            // TODO Implement reopening a completed repair.
-        }
+    	@Override
+    	public void updateState(Command command) {
+    	    if (command.getCommand() != CommandValue.REOPEN) {
+    	        throw new UnsupportedOperationException("Invalid command.");
+    	    }
+    	    note = command.getCommandInformation();
+    	    currentState = workState;
+    	}
 
         /**
          * Returns the Completed state name.
          * @return the state name
          */
-        @Override
-        public String getStateName() {
-            return null;
-        }
+    	@Override
+    	public String getStateName() {
+    	    return COMPLETED_NAME;
+    	}
     }
 }
