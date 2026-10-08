@@ -390,9 +390,8 @@ public class WorkOrder {
     	        technician = null;
     	        currentState = rejectedState;
     	    } else {
-    	        technician = information;
-    	        note = null;
-    	        currentState = workState;
+    	    	technician = information;
+    	    	currentState = workState;
     	    }
     	}
 

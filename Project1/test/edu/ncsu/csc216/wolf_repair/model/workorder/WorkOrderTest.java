@@ -301,6 +301,7 @@ public class WorkOrderTest {
         assertEquals(WorkOrder.REVIEW_NAME, denied.getState());
         assertEquals("Please reconsider", denied.getNote());
         assertEquals("", denied.getTechnician());
+        assertEquals(WorkOrder.WAITING, waiting.getNote());
     }
 
     /** Tests reopening a completed job and retaining its technician. */
