@@ -472,7 +472,6 @@ public class WorkOrder {
     	            throw new UnsupportedOperationException("Invalid command.");
     	        }
     	        technician = information;
-    	        note = null;
     	        currentState = workState;
     	    } else {
     	        if (command.getCommand() != CommandValue.REOPEN) {
