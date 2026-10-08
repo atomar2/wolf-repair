@@ -1,7 +1,10 @@
 package edu.ncsu.csc216.wolf_repair.model.manager;
 
 import java.util.List;
+import java.util.ArrayList;
 
+import edu.ncsu.csc216.wolf_repair.model.io.RepairSiteReader;
+import edu.ncsu.csc216.wolf_repair.model.io.RepairSiteWriter;
 import edu.ncsu.csc216.wolf_repair.model.command.Command;
 import edu.ncsu.csc216.wolf_repair.model.workorder.WorkOrder;
 
@@ -23,7 +26,7 @@ public class WolfRepair {
      * Constructs a manager with an empty repair site list and no active site.
      */
     private WolfRepair() {
-        // TODO Initialize the repair site list.
+        siteList = new ArrayList<RepairSite>();
     }
 
     /**
@@ -31,8 +34,10 @@ public class WolfRepair {
      * @return shared WolfRepair manager
      */
     public static synchronized WolfRepair getInstance() {
-        // TODO Create and return the singleton instance.
-        return null;
+        if (singleton == null) {
+            singleton = new WolfRepair();
+        }
+        return singleton;
     }
 
     /**
@@ -42,7 +47,14 @@ public class WolfRepair {
      * @throws IllegalArgumentException if the file cannot be loaded
      */
     public void loadRepairSitesFromFile(String fileName) {
-        // TODO Read and append repair sites, then select the first loaded site.
+        ArrayList<RepairSite> loadedSites =
+                RepairSiteReader.readRepairSiteFile(fileName);
+        siteList.addAll(loadedSites);
+
+        if (!loadedSites.isEmpty()) {
+            activeSite = loadedSites.get(0);
+            activeSite.setWorkOrderId();
+        }
     }
 
     /**
@@ -53,7 +65,10 @@ public class WolfRepair {
      *         cannot be saved
      */
     public void saveRepairSitesToFile(String fileName) {
-        // TODO Write the repair sites to the file.
+        if (activeSite == null) {
+            throw new IllegalArgumentException("Unable to save file.");
+        }
+        RepairSiteWriter.writeRepairSitesToFile(fileName, siteList);
     }
 
     /**
@@ -67,7 +82,15 @@ public class WolfRepair {
      */
     public void addNewRepairSite(String siteName, String siteCategory,
             int budget) {
-        // TODO Validate uniqueness, create the site, and make it active.
+        for (RepairSite site : siteList) {
+            if (site.getSiteName().equalsIgnoreCase(siteName)) {
+                throw new IllegalArgumentException("RepairSite cannot be created.");
+            }
+        }
+
+        RepairSite site = new RepairSite(siteName, siteCategory, budget);
+        siteList.add(site);
+        loadRepairSite(siteName);
     }
 
     /**
@@ -77,7 +100,14 @@ public class WolfRepair {
      * @throws IllegalArgumentException if no matching site exists
      */
     public void loadRepairSite(String siteName) {
-        // TODO Find and activate the requested site.
+        for (RepairSite site : siteList) {
+            if (site.getSiteName().equals(siteName)) {
+                activeSite = site;
+                activeSite.setWorkOrderId();
+                return;
+            }
+        }
+        throw new IllegalArgumentException("RepairSite not available.");
     }
 
     /**
@@ -85,7 +115,7 @@ public class WolfRepair {
      * @return active site, or null if none is active
      */
     public RepairSite getActiveRepairSite() {
-        return null;
+        return activeSite;
     }
 
     /**
@@ -93,7 +123,7 @@ public class WolfRepair {
      * @return active site name, or null if none is active
      */
     public String getActiveRepairSiteName() {
-        return null;
+        return activeSite == null ? null : activeSite.getSiteName();
     }
 
     /**
@@ -101,7 +131,11 @@ public class WolfRepair {
      * @return array of repair site names
      */
     public String[] getRepairSiteList() {
-        return null;
+        String[] names = new String[siteList.size()];
+        for (int index = 0; index < siteList.size(); index++) {
+            names[index] = siteList.get(index).getSiteName();
+        }
+        return names;
     }
 
     /**
@@ -113,8 +147,10 @@ public class WolfRepair {
      *         order cannot be created
      */
     public int addWorkOrderToSite(String requester, String description) {
-        // TODO Delegate creation to the active site.
-        return 0;
+        if (activeSite == null) {
+            throw new IllegalArgumentException("No active repair site.");
+        }
+        return activeSite.addWorkOrder(requester, description);
     }
 
     /**
@@ -128,7 +164,9 @@ public class WolfRepair {
      *         is invalid
      */
     public void executeCommand(int id, Command c) {
-        // TODO Delegate the command to the active site.
+        if (activeSite != null) {
+            activeSite.executeCommand(id, c);
+        }
     }
 
     /**
@@ -137,7 +175,9 @@ public class WolfRepair {
      * @param id identifier of the work order to remove
      */
     public void deleteWorkOrderById(int id) {
-        // TODO Delegate deletion to the active site.
+        if (activeSite != null) {
+            activeSite.deleteWorkOrderById(id);
+        }
     }
 
     /**
@@ -148,8 +188,27 @@ public class WolfRepair {
      * @return array of work order information, or null if no site is active
      */
     public String[][] getWorkOrdersAsArray(String stateName) {
-        // TODO Filter work orders and construct the five-column array.
-        return null;
+        if (activeSite == null) {
+            return null;
+        }
+
+        List<WorkOrder> matchingOrders = new ArrayList<WorkOrder>();
+        for (WorkOrder order : activeSite.getWorkOrders()) {
+            if ("All".equals(stateName) || order.getState().equals(stateName)) {
+                matchingOrders.add(order);
+            }
+        }
+
+        String[][] rows = new String[matchingOrders.size()][5];
+        for (int index = 0; index < matchingOrders.size(); index++) {
+            WorkOrder order = matchingOrders.get(index);
+            rows[index][0] = Integer.toString(order.getWorkOrderId());
+            rows[index][1] = order.getState();
+            rows[index][2] = order.getRequester();
+            rows[index][3] = order.getDescription();
+            rows[index][4] = order.getTechnician();
+        }
+        return rows;
     }
 
     /**
@@ -158,7 +217,7 @@ public class WolfRepair {
      * @return matching work order, or null if none exists or no site is active
      */
     public WorkOrder getWorkOrderById(int id) {
-        return null;
+        return activeSite == null ? null : activeSite.getWorkOrderById(id);
     }
 
     /**
@@ -166,6 +225,6 @@ public class WolfRepair {
      * creates a fresh manager. Used to isolate tests.
      */
     protected void resetManager() {
-        // TODO Reset the singleton reference.
+        singleton = null;
     }
 }
