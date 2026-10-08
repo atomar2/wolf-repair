@@ -32,9 +32,9 @@ public class Command {
         REOPEN
     }
 	
-	/** Action represented by this command. */
-	private CommandValue command;
-
+    /** Action represented by this command. */
+    private CommandValue commandValue;
+    
 	/** Information associated with the action. */
 	private String commandInformation;
 	
@@ -61,7 +61,7 @@ public class Command {
             throw new IllegalArgumentException("Invalid information.");
         }
 
-        this.command = command;
+        this.commandValue = command;
         this.commandInformation = commandInformation;
 	}
 
@@ -70,7 +70,7 @@ public class Command {
 	 * @return the command action
 	 */
     public CommandValue getCommand() {
-        return command;
+        return commandValue;
     }
 
 	/**
