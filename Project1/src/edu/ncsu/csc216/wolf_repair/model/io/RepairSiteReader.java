@@ -16,7 +16,12 @@ import edu.ncsu.csc216.wolf_repair.model.workorder.WorkOrder;
  * @author Aanya Tomar
  */
 public class RepairSiteReader {
-
+    /**
+     * Constructs a repair site reader.
+     */
+    public RepairSiteReader() {
+        // Reading is performed through static methods.
+    }
     /**
      * Reads repair sites and work orders from the specified file.
      * Returns an empty list if the file does not begin with a site marker

@@ -16,7 +16,12 @@ import edu.ncsu.csc216.wolf_repair.model.workorder.WorkOrder;
  * @author Aanya Tomar
  */
 public class RepairSiteWriter {
-
+    /**
+     * Constructs a repair site writer.
+     */
+    public RepairSiteWriter() {
+        // Writing is performed through static methods.
+    }
     /**
      * Writes the provided repair sites and their work orders to a file.
      * Preserves site list order and each site's work order order.

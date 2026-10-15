@@ -304,7 +304,10 @@ public class WorkOrder {
      * Represents a newly submitted request awaiting submission for review.
      */
     private class SubmittedState implements WorkOrderState {
-
+        /** Constructs the Submitted state. */
+        private SubmittedState() {
+            // Data is maintained by the enclosing work order.
+        }
         /**
          * Processes SUBMIT to move the work order to UnderReview.
          * @param command action to apply
@@ -332,7 +335,10 @@ public class WorkOrder {
      * Represents a request being reviewed for approval or denial.
      */
     private class ReviewState implements WorkOrderState {
-
+        /** Constructs the UnderReview state. */
+        private ReviewState() {
+            // Data is maintained by the enclosing work order.
+        }
         /**
          * Processes APPROVE to Assigned or DENY to Rejected.
          * @param command action to apply
@@ -371,7 +377,10 @@ public class WorkOrder {
      * Represents an approved request awaiting technician dispatch.
      */
     private class AssignedState implements WorkOrderState {
-
+        /** Constructs the Assigned state. */
+        private AssignedState() {
+            // Data is maintained by the enclosing work order.
+        }
         /**
          * Processes DISPATCH to InProgress or Rejected based on its information.
          * @param command action to apply
@@ -409,7 +418,10 @@ public class WorkOrder {
      * Represents a repair being performed by a technician.
      */
     private class WorkState implements WorkOrderState {
-
+        /** Constructs the InProgress state. */
+        private WorkState() {
+            // Data is maintained by the enclosing work order.
+        }
         /**
          * Processes reassignment, status updates, cancellation, or completion.
          * @param command action to apply
@@ -454,7 +466,10 @@ public class WorkOrder {
      * depending on its recorded rejection reason.
      */
     private class RejectedState implements WorkOrderState {
-
+        /** Constructs the Rejected state. */
+        private RejectedState() {
+            // Data is maintained by the enclosing work order.
+        }
         /**
          * Dispatches a waiting request or reopens another rejected request.
          * @param command action to apply
@@ -496,7 +511,10 @@ public class WorkOrder {
      * Represents a finished repair that can be reopened if the issue recurs.
      */
     private class CompletedState implements WorkOrderState {
-
+        /** Constructs the Completed state. */
+        private CompletedState() {
+            // Data is maintained by the enclosing work order.
+        }
         /**
          * Processes REOPEN to InProgress while retaining the technician.
          * @param command action to apply
