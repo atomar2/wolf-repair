@@ -1,0 +1,10 @@
+# Bragaw Hall,Dorm,15000
+* 5,InProgress,Devon Brooks,HVAC unit not cooling,jmartin,
+* 1,Submitted,Alice Chen,Leaking faucet in room 214,,
+* 3,Assigned,Priya Nair,No hot water on 3rd floor,,
+* 1,UnderReview,Jamie Fox,Duplicate id for testing,,
+* 4,InProgress,Ravi Shah,Broken door closer,,
+# Reynolds Coliseum,Athletic,40000
+* 2,UnderReview,Marcus Lee,Bleacher railing loose,,
+# Empty Site,Dorm,100
+* 4,Completed,Sam Patel,Broken window,,Fixed.
